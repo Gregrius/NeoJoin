@@ -240,6 +240,16 @@ public class QueryModelInferrer {
                         break;
                     }
                 }
+                
+                //add declared parameters
+                for (var param : viewType.getParameters()) {
+                    var instanceClass = param.getType().getInstanceClass();
+                    if (instanceClass != null) {
+                        op.getParameters().add(
+                          types.toParameter(param, param.getAlias(), typeReferences.typeRef(instanceClass))  
+                        );
+                    }
+                }
             };
         }
     }
@@ -254,6 +264,16 @@ public class QueryModelInferrer {
     private Consumer<JvmOperation> paramsForClass(EClass clazz, EObject source) {
         return op -> {
             addParam(op, source, Constants.ExpressionSelfReference, sourceTypes.getClass(clazz), false);
+
+            //add declared parameters
+            for (var param : viewType.getParameters()) {
+                var instanceClass = param.getType().getInstanceClass();
+                if (instanceClass != null) {
+                    op.getParameters().add(
+                    types.toParameter(param, param.getAlias(), typeReferences.typeRef(instanceClass))  
+                    );
+                }
+            }
         };
     }
 
