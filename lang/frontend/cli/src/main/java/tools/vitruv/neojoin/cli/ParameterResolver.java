@@ -22,7 +22,7 @@ class ParameterResolver {
      * @param aqrParams   declared parameters from the AQR
      * @param inputParams raw name=value pairs from the CLI
      * @param registry    package registry used to load XMI files for EClass parameters
-     * @return map from parameter alias to typed value
+     * @return map from parameter alias to typed value (null for optional parameters not provided)
      */
     static Map<String, Object> resolve(
         List<AQRParameter> aqrParams,
@@ -37,9 +37,7 @@ class ParameterResolver {
 
         for (AQRParameter param : aqrParams) {
             if (!inputParams.containsKey(param.alias())) {
-                throw new ParameterResolutionException(
-                    "Missing value for parameter '%s' of type '%s'".formatted(param.alias(), param.type().getName())
-                );
+                result.put(param.alias(), null);
             } else {
                 var rawValue = inputParams.get(param.alias());
                 Object typedValue;

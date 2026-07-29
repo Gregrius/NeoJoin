@@ -1,0 +1,15 @@
+export pizza to "http://example.org/pizza-param-employees"
+
+import "http://example.org/restaurant"
+
+param minEmployees : EInt
+
+from Restaurant r
+where r.numEmployees > minEmployees
+create {
+    r.name
+    r.sells create {
+        it.name
+        it.price
+    }
+}

@@ -96,4 +96,32 @@ class ParameterTransformTest {
         assertNotEquals(0, exitCode);
     }
 
+    // When -p is omitted for a declared parameter the CLI sets it to null.
+    // Filtering in the where clause is bypassed, so all source instances appear in the output.
+    @Test
+    void testTransformMissingParameterBypassesFilter(@TempDir Path outputDirectory) throws URISyntaxException, IOException {
+        var metaModelPath = getResource(Utils.MODELS);
+        var instanceModelPath = getResource(Utils.INSTANCES);
+        var query = getResource(Utils.QUERIES.resolve("pizza-param-employees.nj"));
+        Path output = outputDirectory.resolve("pizza-param-employees-no-param.xmi");
+
+        int exitCode = new CommandLine(new Main()).execute(
+            "--meta-model-path=" + metaModelPath,
+            "--instance-model-path=" + instanceModelPath,
+            "--transform=" + output,
+            query.toString()
+        );
+
+        assertEquals(0, exitCode);
+
+        var resultModel = getResource(Utils.MODELS.resolve("pizza-param-employees.ecore"));
+        var expected = getResource(Utils.RESULTS.resolve("pizza-param-employees-no-param.xmi"));
+
+        Stream<Diff> differences = compareInstanceFiles(resultModel, expected, output)
+            .getDifferences()
+            .stream()
+            .filter(diff -> diff.getKind() != DifferenceKind.MOVE);
+        assertTrue(differences.findAny().isEmpty());
+    }
+
 }
